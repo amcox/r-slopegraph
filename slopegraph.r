@@ -167,7 +167,7 @@ theme_slopegraph <- function (base_size = 12, base_family = "") {
           axis.text = element_text(colour="black"),
           axis.text.x = element_text(size = rel(1), lineheight = 0.9,
               vjust = 1),
-          axis.text.y = element_text(size=rel(0.8)),
+          axis.text.y = element_blank(),
           axis.ticks = element_blank(),
           axis.title.x = element_blank(),
           axis.title.y = element_blank(),
@@ -193,7 +193,7 @@ theme_slopegraph <- function (base_size = 12, base_family = "") {
 ##' @param df a data frame giving the data
 ##' @return a ggplot object
 ##' @import ggplot2
-plot_slopegraph <- function(df) {
+plot_slopegraph <- function(df, expand.factor=waiver()) {
     ylabs <- subset(df, x==head(x,1))$group
     yvals <- subset(df, x==head(x,1))$ypos
     fontSize <- 2.5
@@ -201,7 +201,15 @@ plot_slopegraph <- function(df) {
         geom_line(aes(group=group),colour="grey80") +
         geom_point(colour="white",size=8) +
         geom_text(aes(label=y),size=fontSize) +
-        scale_y_continuous(name="", breaks=yvals, labels=ylabs)
+        geom_text(data=subset(df, x == df$x[length(df$x)]),
+          aes(x = factor(x), label = sprintf("   %s", group)),
+          size = rel(2.8), hjust = 0
+        ) +
+        geom_text(data = subset(df, x == df$x[1]),
+          aes(x = factor(x), label = sprintf("%s   ", group)),
+          size = rel(2.8), hjust = 1
+        )+
+        scale_x_discrete(expand=expand.factor)
     gg.form <- gg + theme_slopegraph()
     return(gg.form)
 }
